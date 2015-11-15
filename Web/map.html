@@ -63,11 +63,16 @@
 	    </select>
 	    </div>
 	    <div id="map"></div>
+	    <script src="csv.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
 	    <script>
 
 	function calcRoute() {
-		console.log("hanji")
+		console.log("Map Starting...")
 	}
+	
+	var mainRows;
+
 	function initMap() {
 	  var directionsService = new google.maps.DirectionsService;
 	  var directionsDisplay = new google.maps.DirectionsRenderer;
@@ -82,8 +87,22 @@
 	  };
 	  document.getElementById('start').addEventListener('change', onChangeHandler);
 	  document.getElementById('end').addEventListener('change', onChangeHandler);
+
+
+
 	}
 
+	function parseAndSendData(overview_polyline){
+		var arrayCurrent = [];
+		for(var k=0; k<overview_polyline.length; k++){
+			var obj = {
+				lat: overview_polyline[k].lat(),
+				lng: overview_polyline[k].lng(),
+			}
+			arrayCurrent.push(obj)
+		}
+		console.log(JSON.stringify(arrayCurrent))
+	}
 	function calculateAndDisplayRoute(directionsService, directionsDisplay, map) {
 	  directionsService.route({
 	    origin: document.getElementById('start').value,
@@ -92,19 +111,17 @@
 	    travelMode: google.maps.TravelMode.DRIVING
 	  }, function(response, status) {
 	    if (status === google.maps.DirectionsStatus.OK) {
-	      directionsDisplay.setDirections(null);
-	      // directionsDisplay.setDirections(response);
+			for (var i = 0, len = response.routes.length; i < len; i++) {
+	      		console.log("Routes: " + i);
+	      		console.log(parseAndSendData(google.maps.geometry.encoding.decodePath(response.routes[i].overview_polyline)));
 
-	      console.log(response);
-	      for (var i = 0, len = response.routes.length; i < len; i++) {
-	      		console.log(response.routes[i])
+	      		//google.maps.geometry.encoding.decodePath(response.routes[i].overview_polyline)
                 new google.maps.DirectionsRenderer({
                     map: map,
                     directions: response,
                     routeIndex: i
                 });
-            }
-
+			}
 	    } else {
 	      window.alert('Directions request failed due to ' + status);
 	    }
@@ -112,7 +129,7 @@
 	}
 
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCnCvlv3O5NrEXUWNJbIcFpiQ4dTzKpEng&signed_in=true&callback=initMap"
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCnCvlv3O5NrEXUWNJbIcFpiQ4dTzKpEng&signed_in=true&callback=initMap&libraries=geometry"
         async defer></script>
   </body>
 </html>
