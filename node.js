@@ -9,7 +9,6 @@ var port = process.env.PORT || 5000
 var fs = require('fs');
 var parse = require('csv-parse');
 var async = require('async');
-var Parallel = require('paralleljs');
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
