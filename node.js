@@ -29,12 +29,12 @@ console.log('Listening at ' + port);
 // var STOLEN_VEHICLE = 0.8;
 // var HOMICIDE = 1;
 
-var LARCENY = 2;
-var AGGRAVATED_ASSAULT = 4;
-var ROBBERY = 5;
-var BURGLARY = 4;
-var STOLEN_VEHICLE = 3;
-var HOMICIDE = 7;
+var LARCENY = 20;
+var AGGRAVATED_ASSAULT = 40;
+var ROBBERY = 50;
+var BURGLARY = 40;
+var STOLEN_VEHICLE = 30;
+var HOMICIDE = 70;
 
 var TOTALLARCENY = 13732;
 var TOTALAGGRAVATED_ASSAULT = 8102;
