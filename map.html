@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Directions service</title>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+#floating-panel {
+  position: absolute;
+  top: 10px;
+  left: 25%;
+  z-index: 5;
+  background-color: #fff;
+  padding: 5px;
+  border: 1px solid #999;
+  text-align: center;
+  font-family: 'Roboto','sans-serif';
+  line-height: 30px;
+  padding-left: 10px;
+}
+
+    </style>
+	  </head>
+	  <body>
+	    <div id="floating-panel">
+	    <b>Start: </b>
+	    <select id="start" onchange="calcRoute();">
+	      <option value="detroit, mi">Detroit Bridge</option>
+	      <option value="2395 glendale ave, detroit, mi">Glendale Avenue</option>
+	      <option value="Warren Woods, Warren, MI, USA">Warren Woods, Warren, MI, USA</option>
+	      <option value="516 S Stephenson Hwy, Royal Oak, MI 48067, USA">516 S Stephenson Hwy, Royal Oak, MI 48067, USA</option>
+	      <option value="Interstate 94, Ann Arbor, MI 48103, USA">Interstate 94, Ann Arbor, MI 48103, USA</option>
+
+	    </select>
+	    <b>End: </b>
+	    <select id="end" onchange="calcRoute();">
+	 		<option value="detroit, mi">Detroit Bridge</option>
+	      <option value="2395 glendale ave, detroit, mi">Glendale Avenue</option>
+	      <option value="Warren Woods, Warren, MI, USA">Warren Woods, Warren, MI, USA</option>
+	      <option value="516 S Stephenson Hwy, Royal Oak, MI 48067, USA">516 S Stephenson Hwy, Royal Oak, MI 48067, USA</option>
+	      <option value="Interstate 94, Ann Arbor, MI 48103, USA">Interstate 94, Ann Arbor, MI 48103, USA</option>
+	      
+	    </select>
+	    </div>
+	    <div id="map"></div>
+	    <script src="csv.js"></script>
+	    <script src="sweetalert.min.js"></script> 
+	    <link rel="stylesheet" type="text/css" href="sweetalert.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+	    <script>
+
+	function CenterControl(controlDiv, map, text, textValue) {
+
+	  // Set CSS for the control border.
+	  var controlUI = document.createElement('div');
+	  controlUI.style.backgroundColor = '#fff';
+	  controlUI.style.border = '2px solid #fff';
+	  controlUI.style.borderRadius = '3px';
+	  controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+	  controlUI.style.cursor = 'pointer';
+	  controlUI.style.marginBottom = '22px';
+	  controlUI.style.textAlign = 'center';
+	  controlUI.title = 'Click to get '+text;
+	  controlDiv.appendChild(controlUI);
+
+	  // Set CSS for the control interior.
+	  var controlText = document.createElement('div');
+	  controlText.id = text;
+	  controlText.style.color = 'rgb(25,25,25)';
+	  controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+	  controlText.style.fontSize = '16px';
+	  controlText.style.lineHeight = '38px';
+	  controlText.style.paddingLeft = '5px';
+	  controlText.style.paddingRight = '5px';
+	  controlText.innerHTML = textValue;
+	  controlUI.appendChild(controlText);
+
+	  // Setup the click event listeners: simply set the map to Chicago.
+	  controlUI.addEventListener('click', function() {
+	  		var safetyQ = 0;
+	  		var currentRoute = {};
+	  		console.log(this.innerHTML.substring(9,16))
+	  		if(this.innerHTML.substring(9,16) == "Route_1"){
+	  			console.log(Route_1);
+	  			currentRoute = Route_1;
+	  			safetyQ = parseFloat(Route_1.safetyQ);
+	  		} else if(this.innerHTML.substring(9,16) == "Route_2"){
+	  			console.log(Route_2);
+	  			currentRoute = Route_2;
+	  			safetyQ = parseFloat(Route_2.safetyQ);
+	  		} else if(this.innerHTML.substring(9,16) == "Route_3"){
+	  			console.log(Route_3);
+	  			currentRoute = Route_3;
+	  			safetyQ = parseFloat(Route_3.safetyQ);
+	  		}
+	  		var temp = "";
+	  		if(currentRoute.AGGRAVATED_ASSAULT == undefined){
+	  			swal("Waiting...", "No route found.", "warning");
+	  			return 1;
+	  		}
+	  		temp += currentRoute.AGGRAVATED_ASSAULT.toFixed(2) + "% AGGRAVATED_ASSAULT" + "\n";
+			temp += currentRoute.BURGLARY.toFixed(2) + "% BURGLARY" + "\n";
+			temp += currentRoute.HOMICIDE.toFixed(2) + "% HOMICIDE" + "\n";
+			temp += currentRoute.LARCENY.toFixed(2) + "% LARCENY" + "\n";
+			temp += currentRoute.ROBBERY.toFixed(2) + "% ROBBERY" + "\n";
+			temp += currentRoute.STOLEN_VEHICLE.toFixed(2) + "% STOLEN_VEHICLE" + "\n";
+
+	  		if(isBest(safetyQ)){
+	  			swal("Safety: " + safetyQ.toFixed(3) + "", temp, "success");	
+	  		}else{
+	  			swal("Safety: " + safetyQ.toFixed(3) + "", temp, "error");
+	  		}
+	  		
+	  });
+
+	}
+
+	function isBest(safetyQ){
+		if(Route_2.safetyQ == undefined){
+			return true;
+		}
+		if(Route_3.safetyQ == undefined){
+			if(safetyQ == Math.max(parseFloat(Route_1.safetyQ), parseFloat(Route_2.safetyQ))){
+				return true;
+			}else{
+				return false;
+			}
+		}
+		console.log(Route_1.safetyQ, Route_2.safetyQ, Route_3.safety)
+		if(safetyQ == Math.max(parseFloat(Route_1.safetyQ), parseFloat(Route_2.safetyQ), parseFloat(Route_3.safetyQ))){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	var Route_1 = {};
+	var Route_2 = {};
+	var Route_3 = {};
+	
+	function calcRoute() {
+		console.log("Map Starting...")
+	}
+	
+	var mainRows;
+
+	function initMap() {
+	  var directionsService = new google.maps.DirectionsService;
+	  var directionsDisplay = new google.maps.DirectionsRenderer;
+	  var map = new google.maps.Map(document.getElementById('map'), {
+	    zoom: 7,
+	    center: {lat: 41.85, lng: -87.65}
+	  });
+	  directionsDisplay.setMap(map);
+
+	  var onChangeHandler = function() {
+	    calculateAndDisplayRoute(directionsService, directionsDisplay, map);
+	  };
+	  document.getElementById('start').addEventListener('change', onChangeHandler);
+	  document.getElementById('end').addEventListener('change', onChangeHandler);
+
+	  showButtons(map);
+	  
+	}
+
+	function parseAndSendData(overview_polyline, i){
+		var arrayCurrent = [];
+		for(var k=0; k<overview_polyline.length; k++){
+			var obj = {
+				lat: overview_polyline[k].lat(),
+				lng: overview_polyline[k].lng(),
+			}
+			arrayCurrent.push(obj)
+		}
+
+
+		$.ajax({
+		    url: "https://commutum.herokuapp.com/post",
+		    data: {
+		    	overview_polyline: JSON.stringify(arrayCurrent),
+			},
+			divId: i, 
+		    type: "POST",
+		    dataType: "dataTpe",
+		    async: true,
+			complete: function(result){
+				console.log(result);
+
+				if(this.divId == 0){
+					Route_1 = JSON.parse(result.responseText);
+				}else if(this.divId == 1){
+					Route_2 = JSON.parse(result.responseText);
+				}else if(this.divId == 2){
+					Route_3 = JSON.parse(result.responseText);
+				}
+			},
+			failure: function(){
+				console.log('error');
+			}
+		});
+
+		// $.post("http://localhost:5000/post", 
+		// { 
+		// 	overview_polyline: JSON.stringify(arrayCurrent),
+		// 	divId: i, 
+		// })
+		// .done(function( result,a,b ) {
+		//   	console.log(this,a,b);
+
+		// 	if(this.divId == 0){
+		// 		Route_1 = result;
+		// 	}else if(this.divId == 1){
+		// 		Route_2 = result;
+		// 	}else if(this.divId == 2){
+		// 		Route_3 = result;
+		// 	}
+	 //  });
+
+		// $.ajax({url: "http://localhost:5000?overview_polyline=" + JSON.stringify(arrayCurrent),
+		// 	divId: i, 
+		// 	success: function(result){
+  //       			console.log(result, this.divId);
+
+  //       			if(this.divId == 0){
+  //       				Route_1 = result;
+  //       			}else if(this.divId == 1){
+  //       				Route_2 = result;
+  //       			}else if(this.divId == 2){
+  //       				Route_3 = result;
+  //       			}
+  
+		// 	    }
+		// 	});
+	}
+	function showButtons(map){
+
+	  var centerControlDiv = document.createElement('div');
+	  var text = "Route_1";
+	  var textValue = "Route 1";
+	  var centerControl = new CenterControl(centerControlDiv, map, text, textValue);
+	  centerControlDiv.index = 1;
+	  map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(centerControlDiv);
+
+	  centerControlDiv = document.createElement('div');
+	  text = "Route_2";
+	  textValue = "Route 2";
+	  centerControl = new CenterControl(centerControlDiv, map, text, textValue);
+	  centerControlDiv.index = 1;
+	  map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(centerControlDiv);
+	  
+	  centerControlDiv = document.createElement('div');
+	  text = "Route_3";
+	  textValue = "Route 3";
+	  centerControl = new CenterControl(centerControlDiv, map, text, textValue);
+	  centerControlDiv.index = 1;
+	  map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(centerControlDiv);
+
+	  return 1;
+	}
+
+	function calculateAndDisplayRoute(directionsService, directionsDisplay, map) {
+	  directionsService.route({
+	    origin: document.getElementById('start').value,
+	    destination: document.getElementById('end').value,
+	    provideRouteAlternatives: true,
+	    travelMode: google.maps.TravelMode.DRIVING
+	  }, function(response, status) {
+	    if (status === google.maps.DirectionsStatus.OK) {
+	    	directionsDisplay.setMap(null);
+	    	map = new google.maps.Map(document.getElementById('map'), {
+			    zoom: 7,
+			    center: {lat: 41.85, lng: -87.65}
+			  });
+		  	directionsDisplay.setMap(map);
+		  	showButtons(map);
+			Route_1 = {};
+			Route_2 = {};
+			Route_3 = {};
+			for (var i = 0, len = response.routes.length; i < len; i++) {
+	      		console.log("Routes: " + i);
+	      		parseAndSendData(google.maps.geometry.encoding.decodePath(response.routes[i].overview_polyline), i);
+
+	      		//google.maps.geometry.encoding.decodePath(response.routes[i].overview_polyline)
+                new google.maps.DirectionsRenderer({
+                    map: map,
+                    directions: response,
+                    routeIndex: i
+                });
+			}
+			
+	    } else {
+	      window.alert('Directions request failed due to ' + status);
+	    }
+	  });
+	}
+
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCnCvlv3O5NrEXUWNJbIcFpiQ4dTzKpEng&signed_in=true&callback=initMap&libraries=geometry"
+        async defer></script>
+  </body>
+</html>
