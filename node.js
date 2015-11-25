@@ -55,6 +55,78 @@ var safetyQ = 0;
 var resultArray = {};
 var saveData = [];
 
+app.post('/post', function (req, res) {
+    // console.log(req.body);
+    // console.log(req.query);
+    // console.log("boom");
+    // return 1;
+    req.query.overview_polyline = req.body.overview_polyline;
+    totalDistance = 0;
+    vLARCENY = [];
+    vAGGRAVATED_ASSAULT = [];
+    vROBBERY = [];
+    vBURGLARY = [];
+    vSTOLEN_VEHICLE = [];
+    vHOMICIDE = [];
+    vtotalDistance = 0;
+    safetyQ = 0;
+    resultArray = {};
+
+    if(req.query.overview_polyline != undefined){
+        var isExists = saveData.containsPolyline(req.query.overview_polyline);
+        if(isExists != false){
+            res.writeHead(200, {
+                'content-type': 'text/json'
+            });
+            res.write(JSON.stringify(isExists))
+            res.end('\n')
+            return 1;
+        }else{
+            console.log('nope')
+        }
+        overview_polyline = JSON.parse(req.query.overview_polyline);
+        for(var i=0; i<overview_polyline.length; i++){
+            getDistance(overview_polyline[i].lat, overview_polyline[i].lng)
+        }
+    } else {
+      window.alert('Directions request failed due to ' + status);
+    }
+
+    console.log("Percentage Number");
+    console.log("LARCENY: " + 100*vLARCENY.unique().length/TOTALLARCENY);
+    console.log("AGGRAVATED ASSAULT: " + 100*vAGGRAVATED_ASSAULT.unique().length/TOTALAGGRAVATED_ASSAULT);
+    console.log("ROBBERY: " + 100*vROBBERY.unique().length/TOTALROBBERY);
+    console.log("BURGLARY: " + 100*vBURGLARY.unique().length/TOTALBURGLARY);
+    console.log("STOLEN VEHICLE: " + 100*vSTOLEN_VEHICLE.unique().length/TOTALSTOLEN_VEHICLE);
+    console.log("HOMICIDE: " + 100*vHOMICIDE.unique().length/TOTALHOMICIDE);
+
+    safetyQ += LARCENY*100*vLARCENY.unique().length/TOTALLARCENY;
+    safetyQ += AGGRAVATED_ASSAULT*100*vAGGRAVATED_ASSAULT.unique().length/TOTALAGGRAVATED_ASSAULT;
+    safetyQ += ROBBERY*100*vROBBERY.unique().length/TOTALROBBERY;
+    safetyQ += BURGLARY*100*vBURGLARY.unique().length/TOTALBURGLARY;
+    safetyQ += STOLEN_VEHICLE*100*vSTOLEN_VEHICLE.unique().length/TOTALSTOLEN_VEHICLE;
+    safetyQ += HOMICIDE*100*vHOMICIDE.unique().length/TOTALHOMICIDE;
+
+    console.log("safetyQ: " + safetyQ);
+    resultArray = {
+        polyline: req.query.overview_polyline,
+        safetyQ: 100-safetyQ,
+        LARCENY: 100*vLARCENY.unique().length/TOTALLARCENY,
+        AGGRAVATED_ASSAULT: 100*vAGGRAVATED_ASSAULT.unique().length/TOTALAGGRAVATED_ASSAULT,
+        ROBBERY: 100*vROBBERY.unique().length/TOTALROBBERY,
+        BURGLARY: 100*vBURGLARY.unique().length/TOTALBURGLARY,
+        STOLEN_VEHICLE: 100*vSTOLEN_VEHICLE.unique().length/TOTALSTOLEN_VEHICLE,
+        HOMICIDE: 100*vHOMICIDE.unique().length/TOTALHOMICIDE
+    }
+    res.writeHead(200, {
+        'content-type': 'text/json'
+    });
+    res.write(JSON.stringify(resultArray))
+        //     res.write(JSON.stringify());
+    res.end('\n')
+    saveData.push(resultArray);
+});        
+
 app.get('/', function (req, res) {
     totalDistance = 0;
     vLARCENY = [];
@@ -86,16 +158,6 @@ app.get('/', function (req, res) {
     } else {
       window.alert('Directions request failed due to ' + status);
     }
-    // console.log("TotalDistance=" + totalDistance)
-    // console.log("NumberOfPoints=" + overview_polyline.length)   
-    
-    // console.log("Actual Number");
-    // console.log("LARCENY: " + vLARCENY.unique().length);
-    // console.log("AGGRAVATED ASSAULT: " + vAGGRAVATED_ASSAULT.unique().length);
-    // console.log("ROBBERY: " + vROBBERY.unique().length);
-    // console.log("BURGLARY: " + vBURGLARY.unique().length);
-    // console.log("STOLEN VEHICLE: " + vSTOLEN_VEHICLE.unique().length);
-    // console.log("HOMICIDE: " + vHOMICIDE.unique().length);
 
     console.log("Percentage Number");
     console.log("LARCENY: " + 100*vLARCENY.unique().length/TOTALLARCENY);
@@ -211,14 +273,15 @@ var parser = parse({delimiter: ','}, function (err, data) {
 	var end_pos2 = x.indexOf(')',start_pos2);
 
   	// console.log(x.substring(start_pos1, end_pos1), x.substring(start_pos2, end_pos2))
-  	records.push({
-      	lat: x.substring(start_pos1, end_pos1),
-        lng: x.substring(start_pos2, end_pos2),
-        date: line[4],
-        category: line[1]
-    });
-    if(x.substring(start_pos1, end_pos1).length < 10 && x.substring(start_pos2, end_pos2).length < 10)
-    console.log(x.substring(start_pos1, end_pos1)+',' + x.substring(start_pos2, end_pos2))
+  	if(x.substring(start_pos1, end_pos1).length < 10 && x.substring(start_pos2, end_pos2).length < 10){
+        console.log(x.substring(start_pos1, end_pos1)+',' + x.substring(start_pos2, end_pos2))
+        records.push({
+            lat: x.substring(start_pos1, end_pos1),
+            lng: x.substring(start_pos2, end_pos2),
+            date: line[4],
+            category: line[1]
+        });
+    }
     // switch(line[1]){
     //     case "LARCENY": vvLARCENY++; break;
     //     case "AGGRAVATED ASSAULT": vvAGGRAVATED_ASSAULT++; break;
