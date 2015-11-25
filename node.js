@@ -22,11 +22,18 @@ app.all('*', function(req, res, next) {
 app.listen(port);
 console.log('Listening at ' + port);
 
-var LARCENY = 0.4;
-var AGGRAVATED_ASSAULT = 0.9;
-var ROBBERY = 0.6;
-var BURGLARY = 0.7;
-var STOLEN_VEHICLE = 0.8;
+// var LARCENY = 0.4;
+// var AGGRAVATED_ASSAULT = 0.9;
+// var ROBBERY = 0.6;
+// var BURGLARY = 0.7;
+// var STOLEN_VEHICLE = 0.8;
+// var HOMICIDE = 1;
+
+var LARCENY = 1;
+var AGGRAVATED_ASSAULT = 1;
+var ROBBERY = 1;
+var BURGLARY = 1;
+var STOLEN_VEHICLE = 1;
 var HOMICIDE = 1;
 
 var TOTALLARCENY = 13732;
