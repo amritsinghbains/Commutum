@@ -29,12 +29,12 @@ console.log('Listening at ' + port);
 // var STOLEN_VEHICLE = 0.8;
 // var HOMICIDE = 1;
 
-var LARCENY = 200;
-var AGGRAVATED_ASSAULT = 400;
-var ROBBERY = 500;
-var BURGLARY = 400;
-var STOLEN_VEHICLE = 300;
-var HOMICIDE = 700;
+var LARCENY = 20;
+var AGGRAVATED_ASSAULT = 40;
+var ROBBERY = 50;
+var BURGLARY = 40;
+var STOLEN_VEHICLE = 30;
+var HOMICIDE = 70;
 
 var TOTALLARCENY = 13732;
 var TOTALAGGRAVATED_ASSAULT = 8102;
@@ -205,7 +205,7 @@ app.get('/', function (req, res) {
 function getDistance (lat, lng) {	
 	for(var j=0; j<records.length; j++){
 
-		if(getDistanceFromLatLonInKm(lat, lng, parseFloat(records[j].lat), parseFloat(records[j].lng), 'K') < 0.006){
+		if(getDistanceFromLatLonInKm(lat, lng, parseFloat(records[j].lat), parseFloat(records[j].lng), 'K') < 0.01){
 		    totalDistance++;
 		    switch(records[j].category){
                 case "LARCENY": vLARCENY.push(j); break;
