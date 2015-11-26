@@ -205,7 +205,7 @@ app.get('/', function (req, res) {
 function getDistance (lat, lng) {	
 	for(var j=0; j<records.length; j++){
 
-		if(getDistanceFromLatLonInKm(lat, lng, parseFloat(records[j].lat), parseFloat(records[j].lng), 'K') < 0.015){
+		if(getDistanceFromLatLonInKm(lat, lng, parseFloat(records[j].lat), parseFloat(records[j].lng), 'K') < 0.008){
 		    totalDistance++;
 		    switch(records[j].category){
                 case "LARCENY": vLARCENY.push(j); break;
