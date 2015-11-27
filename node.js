@@ -118,12 +118,12 @@ app.post('/post', function (req, res) {
     resultArray = {
         polyline: req.query.overview_polyline,
         safetyQ: 100-safetyQ,
-        LARCENY: 100*vLARCENY.unique().length/TOTALLARCENY,
-        AGGRAVATED_ASSAULT: 100*vAGGRAVATED_ASSAULT.unique().length/TOTALAGGRAVATED_ASSAULT,
-        ROBBERY: 100*vROBBERY.unique().length/TOTALROBBERY,
-        BURGLARY: 100*vBURGLARY.unique().length/TOTALBURGLARY,
-        STOLEN_VEHICLE: 100*vSTOLEN_VEHICLE.unique().length/TOTALSTOLEN_VEHICLE,
-        HOMICIDE: 100*vHOMICIDE.unique().length/TOTALHOMICIDE
+        LARCENY: vLARCENY.unique().length,
+        AGGRAVATED_ASSAULT: vAGGRAVATED_ASSAULT.unique().length,
+        ROBBERY: vROBBERY.unique().length,
+        BURGLARY: vBURGLARY.unique().length,
+        STOLEN_VEHICLE: vSTOLEN_VEHICLE.unique().length,
+        HOMICIDE: tervHOMICIDE.unique().length
     }
     res.writeHead(200, {
         'content-type': 'text/json'
