@@ -123,7 +123,7 @@ app.post('/post', function (req, res) {
         ROBBERY: vROBBERY.unique().length,
         BURGLARY: vBURGLARY.unique().length,
         STOLEN_VEHICLE: vSTOLEN_VEHICLE.unique().length,
-        HOMICIDE: tervHOMICIDE.unique().length
+        HOMICIDE: vHOMICIDE.unique().length
     }
     res.writeHead(200, {
         'content-type': 'text/json'
